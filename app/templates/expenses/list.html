@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Expenses{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Expenses</h4>
+  <a href="/expenses/new" class="btn btn-success btn-sm">+ New Expense</a>
+</div>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-auto">
+    <select name="category" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">All categories</option>
+      {% for c in categories %}<option value="{{ c }}" {% if category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="col-auto"><span class="badge bg-dark fs-6">Total: {{ '%.2f'|format(total) }}</span></div>
+</form>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Batch</th><th></th></tr></thead>
+      <tbody>
+        {% for e in expenses %}
+        <tr>
+          <td>{{ e.expense_date }}</td>
+          <td><span class="badge bg-secondary">{{ e.category }}</span></td>
+          <td>{{ e.description or '-' }}</td>
+          <td>{{ e.amount }}</td>
+          <td>{% if e.batch_id %}<a href="/batches/{{ e.batch_id }}">#{{ e.batch_id }}</a>{% else %}-{% endif %}</td>
+          <td>
+            <form method="post" action="/expenses/{{ e.id }}/delete" onsubmit="return confirm('Delete this expense?')">
+              <button class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}<tr><td colspan="6" class="text-center text-muted py-4">No expenses recorded.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

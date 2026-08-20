@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Batches{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Batches</h4>
+  <a href="/batches/new" class="btn btn-success btn-sm">+ New Batch</a>
+</div>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-auto">
+    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      <option value="open" {% if status=='open' %}selected{% endif %}>Open</option>
+      <option value="processing" {% if status=='processing' %}selected{% endif %}>Processing</option>
+      <option value="completed" {% if status=='completed' %}selected{% endif %}>Completed</option>
+    </select>
+  </div>
+</form>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead><tr><th>Batch #</th><th>Date</th><th>Total Cherry (kg)</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for b in batches %}
+        <tr>
+          <td><a href="/batches/{{ b.id }}">{{ b.batch_number }}</a></td>
+          <td>{{ b.batch_date }}</td>
+          <td>{{ b.total_cherry_kg }}</td>
+          <td>
+            {% if b.status.value == 'open' %}<span class="badge bg-secondary">Open</span>
+            {% elif b.status.value == 'processing' %}<span class="badge bg-info text-dark">Processing</span>
+            {% else %}<span class="badge bg-success">Completed</span>{% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center text-muted py-4">No batches yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

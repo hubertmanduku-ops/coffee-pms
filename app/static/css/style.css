@@ -1,0 +1,7 @@
+body { background-color: #f7f7f5; }
+.navbar-brand { letter-spacing: 0.5px; }
+.card { border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-radius: 10px; }
+.table thead { background-color: #eef5ee; }
+.stat-card { border-left: 4px solid #198754; }
+.login-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,#1b4332,#2d6a4f); }
+.login-card { width: 380px; }

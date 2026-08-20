@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}New Sale{% endblock %}
+{% block content %}
+<h4 class="mb-3">New Sale</h4>
+<div class="card p-4" style="max-width:600px;">
+<form method="post">
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Sale Date</label>
+      <input type="date" name="sale_date" class="form-control" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Customer</label>
+      <input type="text" name="customer_name" class="form-control" required>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 mb-3">
+      <label class="form-label">Product</label>
+      <select name="product_type" class="form-select">{% for p in product_types %}<option value="{{ p }}">{{ p.replace('_',' ')|title }}</option>{% endfor %}</select>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label class="form-label">Warehouse</label>
+      <select name="warehouse_id" class="form-select" required>{% for w in warehouses %}<option value="{{ w.id }}">{{ w.name }}</option>{% endfor %}</select>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label class="form-label">Batch (optional)</label>
+      <select name="batch_id" class="form-select"><option value="">-</option>{% for b in batches %}<option value="{{ b.id }}">{{ b.batch_number }}</option>{% endfor %}</select>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Quantity (kg)</label>
+      <input type="number" step="0.01" name="quantity_kg" class="form-control" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Unit Price</label>
+      <input type="number" step="0.01" name="unit_price" class="form-control" required>
+    </div>
+  </div>
+  <div class="mb-3">
+    <p class="text-muted small mb-1">Current stock by warehouse/product:</p>
+    <ul class="small text-muted">
+      {% for s in stock %}<li>{{ s.warehouse.name }} — {{ s.product_type.value.replace('_',' ')|title }}: {{ s.quantity_kg }} kg</li>{% endfor %}
+    </ul>
+  </div>
+  <button type="submit" class="btn btn-success">Save Sale</button>
+  <a href="/sales" class="btn btn-outline-secondary">Cancel</a>
+</form>
+</div>
+{% endblock %}

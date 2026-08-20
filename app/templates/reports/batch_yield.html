@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Batch Yield{% endblock %}
+{% block content %}
+<h4 class="mb-3">Batch Yield Report</h4>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead><tr><th>Batch</th><th>Date</th><th>Status</th><th>Cherry In (kg)</th><th>Output (kg)</th><th>Recovery %</th></tr></thead>
+      <tbody>
+        {% for d in data %}
+        <tr>
+          <td><a href="/batches/{{ d.batch.id }}">{{ d.batch.batch_number }}</a></td>
+          <td>{{ d.batch.batch_date }}</td>
+          <td>{{ d.batch.status.value }}</td>
+          <td>{{ d.batch.total_cherry_kg }}</td>
+          <td>{{ '%.2f'|format(d.total_out) }}</td>
+          <td>{{ '%.1f'|format(d.recovery) }}%</td>
+        </tr>
+        {% else %}<tr><td colspan="6" class="text-center text-muted py-4">No batches yet.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

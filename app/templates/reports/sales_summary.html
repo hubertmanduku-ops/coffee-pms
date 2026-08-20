@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Sales Summary{% endblock %}
+{% block content %}
+<h4 class="mb-3">Sales Summary <span class="badge bg-dark fs-6">Revenue: {{ '%.2f'|format(total) }}</span></h4>
+<form class="row g-2 mb-3" method="get">
+  <div class="col-auto"><input type="date" name="start" value="{{ start }}" class="form-control form-control-sm"></div>
+  <div class="col-auto"><input type="date" name="end" value="{{ end }}" class="form-control form-control-sm"></div>
+  <div class="col-auto"><button class="btn btn-sm btn-outline-secondary">Filter</button></div>
+</form>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead><tr><th>Product</th><th>Kg Sold</th><th>Revenue</th></tr></thead>
+      <tbody>
+        {% for r in rows %}<tr><td>{{ r[0].value.replace('_',' ')|title }}</td><td>{{ r[1] }}</td><td>{{ r[2] }}</td></tr>
+        {% else %}<tr><td colspan="3" class="text-center text-muted py-4">No sales for this period.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

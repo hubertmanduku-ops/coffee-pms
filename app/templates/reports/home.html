@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<h4 class="mb-3">Reports</h4>
+<div class="row g-3">
+  <div class="col-md-4"><a href="/reports/intake-summary" class="text-decoration-none"><div class="card p-3">Intake Summary <small class="d-block text-muted">By farmer / date range</small></div></a></div>
+  <div class="col-md-4"><a href="/reports/batch-yield" class="text-decoration-none"><div class="card p-3">Batch Yield Report <small class="d-block text-muted">Input vs output, recovery %</small></div></a></div>
+  <div class="col-md-4"><a href="/reports/inventory-stock" class="text-decoration-none"><div class="card p-3">Inventory Stock Report <small class="d-block text-muted">By warehouse / product</small></div></a></div>
+  <div class="col-md-4"><a href="/reports/expense-summary" class="text-decoration-none"><div class="card p-3">Expense Summary <small class="d-block text-muted">By category / period</small></div></a></div>
+  <div class="col-md-4"><a href="/reports/sales-summary" class="text-decoration-none"><div class="card p-3">Sales Summary <small class="d-block text-muted">By period / product</small></div></a></div>
+  <div class="col-md-4"><a href="/reports/farmer-settlement" class="text-decoration-none"><div class="card p-3">Farmer Settlement Worksheet <small class="d-block text-muted">Payables + output shares</small></div></a></div>
+</div>
+{% endblock %}

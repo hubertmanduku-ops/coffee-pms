@@ -1,0 +1,54 @@
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env
+.venv/
+.cpms
+venv/
+
+
+# Environment variables
+.env.local
+.env.*.local
+
+# Data outputs
+data/raw/*.csv
+data/raw/*.xlsx
+data/raw/*.parquet
+
+data/processed/*.csv
+data/processed/*.xlsx
+data/processed/*.parquet
+
+# Logs
+logs/
+*.log
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE settings
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Temporary files
+*.tmp
+*.bak

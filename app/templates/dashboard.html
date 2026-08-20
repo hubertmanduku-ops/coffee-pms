@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h4 class="mb-3">Dashboard</h4>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">Today's Intake</small><h4>{{ today_intake_kg }} kg</h4></div></div>
+  <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">This Week's Intake</small><h4>{{ week_intake_kg }} kg</h4></div></div>
+  <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">Open / Active Batches</small><h4>{{ open_batches }}</h4></div></div>
+  <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">Month Expenses / Sales</small><h4>{{ month_expenses }} / {{ month_sales }}</h4></div></div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header bg-white">Stock on Hand</div>
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead><tr><th>Warehouse</th><th>Product</th><th>Kg</th></tr></thead>
+          <tbody>
+            {% for s in stock %}
+            <tr><td>{{ s.warehouse.name }}</td><td>{{ s.product_type.value.replace('_',' ')|title }}</td><td>{{ s.quantity_kg }}</td></tr>
+            {% else %}<tr><td colspan="3" class="text-center text-muted py-3">No stock recorded yet.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header bg-white">Recent Activity</div>
+      <ul class="list-group list-group-flush">
+        {% for a in recent_activity %}
+        <li class="list-group-item small">
+          <strong>{{ a.username }}</strong> {{ a.action.value }}d {{ a.entity_type.replace('_',' ') }}
+          {% if a.description %}— {{ a.description }}{% endif %}
+          <span class="text-muted d-block">{{ a.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+        </li>
+        {% else %}<li class="list-group-item text-muted text-center py-3">No activity yet.</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="row g-2">
+  <div class="col-auto"><a href="/intake/new" class="btn btn-outline-success btn-sm">+ Record Intake</a></div>
+  <div class="col-auto"><a href="/batches/new" class="btn btn-outline-success btn-sm">+ New Batch</a></div>
+  <div class="col-auto"><a href="/expenses/new" class="btn btn-outline-success btn-sm">+ Record Expense</a></div>
+  <div class="col-auto"><a href="/sales/new" class="btn btn-outline-success btn-sm">+ Record Sale</a></div>
+</div>
+{% endblock %}

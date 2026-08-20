@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}{{ batch.batch_number }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">Batch {{ batch.batch_number }}
+    {% if batch.status.value == 'open' %}<span class="badge bg-secondary">Open</span>
+    {% elif batch.status.value == 'processing' %}<span class="badge bg-info text-dark">Processing</span>
+    {% else %}<span class="badge bg-success">Completed</span>{% endif %}
+  </h4>
+  <form method="post" action="/batches/{{ batch.id }}/status" class="d-flex gap-2">
+    <select name="status" class="form-select form-select-sm">
+      <option value="open" {% if batch.status.value=='open' %}selected{% endif %}>Open</option>
+      <option value="processing" {% if batch.status.value=='processing' %}selected{% endif %}>Processing</option>
+      <option value="completed" {% if batch.status.value=='completed' %}selected{% endif %}>Completed</option>
+    </select>
+    <button class="btn btn-sm btn-outline-success">Update Status</button>
+  </form>
+</div>
+
+<div class="row mb-3">
+  <div class="col-md-4"><div class="card stat-card p-3"><small class="text-muted">Total Cherry In</small><h5>{{ batch.total_cherry_kg }} kg</h5></div></div>
+  <div class="col-md-4"><div class="card stat-card p-3"><small class="text-muted">Total Output</small><h5>{{ '%.2f'|format(total_output) }} kg</h5></div></div>
+  <div class="col-md-4"><div class="card stat-card p-3"><small class="text-muted">Recovery</small><h5>{{ '%.1f'|format(recovery_pct) }}%</h5></div></div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header bg-white">Composition (Mixed Batch)</div>
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead><tr><th>Farmer</th><th>Intake #</th><th>Arrangement</th><th>Kg Contributed</th></tr></thead>
+      <tbody>
+        {% for c in batch.composition %}
+        <tr>
+          <td><a href="/farmers/{{ c.intake.farmer.id }}">{{ c.intake.farmer.full_name }}</a></td>
+          <td><a href="/intake/{{ c.intake.id }}">{{ c.intake.intake_number }}</a></td>
+          <td>{{ c.intake.arrangement_type.value }}</td>
+          <td>{{ c.quantity_kg }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" class="text-center text-muted py-3">No intakes assigned yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer bg-white">
+    <form method="post" action="/batches/{{ batch.id }}/add-intake" class="d-flex gap-2">
+      <select name="intake_id" class="form-select form-select-sm" required>
+        <option value="">Add unassigned intake...</option>
+        {% for i in unassigned_intakes %}
+        <option value="{{ i.id }}">{{ i.intake_number }} - {{ i.farmer.full_name }} ({{ i.quantity_kg }} kg)</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-sm btn-success">Add</button>
+    </form>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header bg-white">Processing Stages</div>
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead><tr><th>Stage</th><th>Start</th><th>End</th><th>Notes</th></tr></thead>
+          <tbody>
+            {% for s in batch.stages %}
+            <tr><td>{{ s.stage.value }}</td><td>{{ s.start_datetime }}</td><td>{{ s.end_datetime or '-' }}</td><td>{{ s.notes or '-' }}</td></tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-3">No stages logged.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer bg-white"><a href="/processing/stage/new?batch_id={{ batch.id }}" class="btn btn-sm btn-outline-success">+ Add Stage</a></div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header bg-white">Outputs</div>
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead><tr><th>Product</th><th>Kg</th><th>Warehouse</th><th>Date</th></tr></thead>
+          <tbody>
+            {% for o in batch.outputs %}
+            <tr><td>{{ o.product_type.value }}</td><td>{{ o.quantity_kg }}</td><td>{{ o.warehouse.name }}</td><td>{{ o.output_date }}</td></tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-3">No outputs recorded.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer bg-white"><a href="/processing/output/new?batch_id={{ batch.id }}" class="btn btn-sm btn-outline-success">+ Add Output</a></div>
+    </div>
+  </div>
+</div>
+{% if not batch.composition %}
+<form method="post" action="/batches/{{ batch.id }}/delete" onsubmit="return confirm('Delete this batch?')">
+  <button class="btn btn-outline-danger btn-sm">Delete Batch</button>
+</form>
+{% endif %}
+{% endblock %}
