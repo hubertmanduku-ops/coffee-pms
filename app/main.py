@@ -30,12 +30,6 @@ app.include_router(users.router)
 app.include_router(audit_log.router)
 
 
-@app.get("/health")
-def health_check():
-    """Unauthenticated liveness endpoint for Railway's healthcheck."""
-    return {"status": "ok"}
-
-
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     # Used by require_login to bounce unauthenticated users to /login.
@@ -75,7 +69,7 @@ def startup_seed():
             admin = models.User(
                 username="admin",
                 full_name="System Administrator",
-                password_hash=hash_password(settings.ADMIN_SEED_PASSWORD),
+                password_hash=hash_password("admin123"),
                 role=models.UserRole.admin,
             )
             db.add(admin)
