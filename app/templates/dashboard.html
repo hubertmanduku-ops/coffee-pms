@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="mb-0">Welcome back, {{ user.full_name.split(' ')[0] }} 👋</h4>
+    <small class="text-muted">Here's what's happening at the mill today.</small>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="/intake/new" class="quick-action-btn"><i class="bi bi-box-arrow-in-down"></i> Record Intake</a>
+    <a href="/batches/new" class="quick-action-btn"><i class="bi bi-collection"></i> New Batch</a>
+    <a href="/sales/new" class="quick-action-btn"><i class="bi bi-cash-coin"></i> Record Sale</a>
+    <a href="/expenses/new" class="quick-action-btn"><i class="bi bi-receipt"></i> Record Expense</a>
+  </div>
+</div>
+
+<!-- KPI row 1 -->
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon-green"><i class="bi bi-people-fill"></i></div>
+      <div>
+        <div class="kpi-label">Active Farmers</div>
+        <div class="kpi-value">{{ total_farmers }}</div>
+        <div class="kpi-sub">registered suppliers</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon-brown"><i class="bi bi-basket-fill"></i></div>
+      <div>
+        <div class="kpi-label">Cherry Intake (Month)</div>
+        <div class="kpi-value">{{ '%.0f'|format(month_intake_kg) }} <small class="fs-6 fw-normal text-muted">kg</small></div>
+        <div class="kpi-sub">{{ '%.0f'|format(total_intake_kg) }} kg all-time</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon-teal"><i class="bi bi-box-seam-fill"></i></div>
+      <div>
+        <div class="kpi-label">Green Coffee Stock</div>
+        <div class="kpi-value">{{ '%.0f'|format(green_coffee_stock_kg) }} <small class="fs-6 fw-normal text-muted">kg</small></div>
+        <div class="kpi-sub">final product on hand</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon {% if net_this_month >= 0 %}kpi-icon-green{% else %}kpi-icon-red{% endif %}"><i class="bi bi-graph-up-arrow"></i></div>
+      <div>
+        <div class="kpi-label">Net (Month)</div>
+        <div class="kpi-value">{{ '%.0f'|format(net_this_month) }}</div>
+        <div class="kpi-sub">sales minus expenses</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KPI row 2 -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon-blue"><i class="bi bi-cart-check-fill"></i></div>
+      <div>
+        <div class="kpi-label">Purchases (Month)</div>
+        <div class="kpi-value">{{ '%.0f'|format(month_purchase_cost) }}</div>
+        <div class="kpi-sub">paid to farmers</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon-amber"><i class="bi bi-wallet2"></i></div>
+      <div>
+        <div class="kpi-label">Expenses (Month)</div>
+        <div class="kpi-value">{{ '%.0f'|format(month_expenses) }}</div>
+        <div class="kpi-sub">labor, fuel, transport...</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon-purple"><i class="bi bi-currency-exchange"></i></div>
+      <div>
+        <div class="kpi-label">Sales Revenue (Month)</div>
+        <div class="kpi-value">{{ '%.0f'|format(month_sales) }}</div>
+        <div class="kpi-sub">green coffee sold</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon-green"><i class="bi bi-speedometer2"></i></div>
+      <div>
+        <div class="kpi-label">Avg. Recovery Rate</div>
+        <div class="kpi-value">{{ '%.1f'|format(avg_recovery_pct) }}%</div>
+        <div class="kpi-sub">green coffee / cherry in</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Left: batch status + intake trend -->
+  <div class="col-lg-8">
+    <div class="section-card mb-3 p-3">
+      <div class="status-pill-row">
+        <div class="status-pill status-pill-open">
+          <span class="count">{{ open_batches }}</span>
+          <span class="label">Open</span>
+        </div>
+        <div class="status-pill status-pill-processing">
+          <span class="count">{{ processing_batches }}</span>
+          <span class="label">Processing</span>
+        </div>
+        <div class="status-pill status-pill-completed">
+          <span class="count">{{ completed_batches }}</span>
+          <span class="label">Completed</span>
+        </div>
+        <a href="/batches" class="quick-action-btn align-self-center">View all batches <i class="bi bi-arrow-right"></i></a>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Cherry Intake — Last 7 Days</span>
+        <span class="text-muted small fw-normal">kg per day</span>
+      </div>
+      <div class="p-3">
+        <canvas id="intakeTrendChart" height="110"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: stock breakdown + farmer leaderboard -->
+  <div class="col-lg-4">
+    <div class="section-card mb-3">
+      <div class="card-header">Stock on Hand</div>
+      <div class="p-3">
+        <canvas id="stockChart" height="180"></canvas>
+        {% if not stock %}<p class="text-center text-muted small mb-0 mt-2">No stock recorded yet.</p>{% endif %}
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="card-header">Top Farmers <span class="text-muted small fw-normal">by kg delivered</span></div>
+      <div class="p-3">
+        {% for name, kg in top_farmers %}
+        {% set pct = (kg / top_farmers[0][1] * 100) if top_farmers[0][1] else 0 %}
+        <div class="leaderboard-item">
+          <div class="leaderboard-rank">{{ loop.index }}</div>
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between">
+              <span class="small fw-semibold">{{ name }}</span>
+              <span class="small text-muted">{{ '%.0f'|format(kg) }} kg</span>
+            </div>
+            <div class="leaderboard-bar-track"><div class="leaderboard-bar-fill" style="width: {{ pct }}%;"></div></div>
+          </div>
+        </div>
+        {% else %}
+        <p class="text-center text-muted small mb-0">No intake recorded yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  const trendCtx = document.getElementById('intakeTrendChart');
+  new Chart(trendCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ intake_trend_labels|tojson }},
+      datasets: [{
+        label: 'Intake (kg)',
+        data: {{ intake_trend_values|tojson }},
+        backgroundColor: '#198754',
+        borderRadius: 6,
+        maxBarThickness: 42,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, grid: { color: '#f0f1f3' } }, x: { grid: { display: false } } }
+    }
+  });
+
+  const stockCtx = document.getElementById('stockChart');
+  new Chart(stockCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Cherry', 'Parchment', 'Green Coffee'],
+      datasets: [{
+        data: [{{ cherry_stock_kg }}, {{ parchment_stock_kg }}, {{ green_coffee_stock_kg }}],
+        backgroundColor: ['#c9a27a', '#8a5a34', '#198754'],
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
+      cutout: '65%'
+    }
+  });
+</script>
+{% endblock %}

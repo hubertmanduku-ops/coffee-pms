@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Inventory Stock Report{% endblock %}
+{% block content %}
+<h4 class="mb-3">Inventory Stock Report</h4>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead><tr><th>Warehouse</th><th>Product</th><th>Stock (kg)</th></tr></thead>
+      <tbody>
+        {% for s in stock %}<tr><td>{{ s.warehouse.name }}</td><td>{{ s.product_type.value.replace('_',' ')|title }}</td><td>{{ s.quantity_kg }}</td></tr>
+        {% else %}<tr><td colspan="3" class="text-center text-muted py-4">No stock recorded.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

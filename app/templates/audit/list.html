@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Audit Log{% endblock %}
+{% block content %}
+<h4 class="mb-3">Audit Log</h4>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-sm mb-0">
+      <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Entity</th><th>Description</th></tr></thead>
+      <tbody>
+        {% for a in entries %}
+        <tr>
+          <td>{{ a.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+          <td>{{ a.username }}</td>
+          <td><span class="badge bg-secondary">{{ a.action.value }}</span></td>
+          <td>{{ a.entity_type }}{% if a.entity_id %} #{{ a.entity_id }}{% endif %}</td>
+          <td>{{ a.description }}</td>
+        </tr>
+        {% else %}<tr><td colspan="5" class="text-center text-muted py-4">No audit entries yet.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

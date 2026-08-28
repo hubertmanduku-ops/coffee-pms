@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Processing{% endblock %}
+{% block content %}
+<h4 class="mb-3">Processing Activity</h4>
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header bg-white">Recent Stages</div>
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead><tr><th>Batch</th><th>Stage</th><th>Start</th><th>End</th></tr></thead>
+          <tbody>
+            {% for s in stages %}
+            <tr><td><a href="/batches/{{ s.batch_id }}">{{ s.batch.batch_number }}</a></td><td>{{ s.stage.value }}</td><td>{{ s.start_datetime }}</td><td>{{ s.end_datetime or '-' }}</td></tr>
+            {% else %}<tr><td colspan="4" class="text-center text-muted py-3">No stages yet.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header bg-white">Recent Outputs</div>
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead><tr><th>Batch</th><th>Product</th><th>Kg</th><th>Warehouse</th></tr></thead>
+          <tbody>
+            {% for o in outputs %}
+            <tr><td><a href="/batches/{{ o.batch_id }}">{{ o.batch.batch_number }}</a></td><td>{{ o.product_type.value }}</td><td>{{ o.quantity_kg }}</td><td>{{ o.warehouse.name }}</td></tr>
+            {% else %}<tr><td colspan="4" class="text-center text-muted py-3">No outputs yet.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="text-muted">Tip: add stages/outputs from a specific batch's detail page.</p>
+{% endblock %}

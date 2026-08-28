@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Add Processing Stage{% endblock %}
+{% block content %}
+<h4 class="mb-3">Add Processing Stage — Batch {{ batch.batch_number }}</h4>
+<div class="card p-4" style="max-width:600px;">
+<form method="post">
+  <input type="hidden" name="batch_id" value="{{ batch.id }}">
+  <div class="mb-3">
+    <label class="form-label">Stage</label>
+    <select name="stage" class="form-select" required>
+      {% for st in stage_types %}<option value="{{ st }}">{{ st.replace('_',' ')|title }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Start Date/Time</label>
+      <input type="datetime-local" name="start_datetime" class="form-control" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">End Date/Time</label>
+      <input type="datetime-local" name="end_datetime" class="form-control">
+    </div>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Parameters</label>
+    <input type="text" name="parameters" class="form-control" placeholder="e.g. fermentation temp, water ratio">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Notes</label>
+    <textarea name="notes" class="form-control" rows="2"></textarea>
+  </div>
+  <button type="submit" class="btn btn-success">Save Stage</button>
+  <a href="/batches/{{ batch.id }}" class="btn btn-outline-secondary">Cancel</a>
+</form>
+</div>
+{% endblock %}

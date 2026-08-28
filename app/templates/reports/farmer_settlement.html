@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Farmer Settlement Worksheet{% endblock %}
+{% block content %}
+<h4 class="mb-3">Farmer Settlement Worksheet</h4>
+<p class="text-muted small">Purchase amounts are direct payables. Processing-on-behalf output share is
+an estimate based on each intake's proportion of its batch's total cherry input — use for manual
+finalization, not automatic payout.</p>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead><tr><th>Farmer</th><th>Purchase Payable</th><th>Processing-on-behalf Kg Delivered</th><th>Estimated Green Coffee Share (kg)</th></tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td><a href="/farmers/{{ r.farmer.id }}">{{ r.farmer.full_name }}</a></td>
+          <td>{{ '%.2f'|format(r.payable) }}</td>
+          <td>{{ '%.2f'|format(r.pob_kg) }}</td>
+          <td>{{ '%.2f'|format(r.output_share_kg) }}</td>
+        </tr>
+        {% else %}<tr><td colspan="4" class="text-center text-muted py-4">No settlement data yet.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

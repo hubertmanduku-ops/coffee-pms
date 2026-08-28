@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}New Intake{% endblock %}
+{% block content %}
+<h4 class="mb-3">New Coffee Intake</h4>
+<div class="card p-4" style="max-width:640px;">
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label">Farmer</label>
+    <select name="farmer_id" class="form-select" required>
+      <option value="">Select farmer...</option>
+      {% for f in farmers %}<option value="{{ f.id }}">{{ f.full_name }} ({{ f.farmer_code }})</option>{% endfor %}
+    </select>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Intake Date</label>
+      <input type="date" name="intake_date" class="form-control" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Quantity (kg)</label>
+      <input type="number" step="0.01" name="quantity_kg" class="form-control" required>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Arrangement Type</label>
+      <select name="arrangement_type" class="form-select" id="arrangement" onchange="document.getElementById('priceWrap').style.display = this.value==='purchase' ? 'block':'none'">
+        <option value="purchase">Purchase</option>
+        <option value="processing_on_behalf">Processing on behalf</option>
+      </select>
+    </div>
+    <div class="col-md-6 mb-3" id="priceWrap">
+      <label class="form-label">Price per kg</label>
+      <input type="number" step="0.01" name="price_per_kg" class="form-control">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Quality Grade</label>
+      <input type="text" name="quality_grade" class="form-control" placeholder="e.g. AA, AB">
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Moisture Content (%)</label>
+      <input type="number" step="0.01" name="moisture_content" class="form-control">
+    </div>
+  </div>
+  <button type="submit" class="btn btn-success">Save Intake</button>
+  <a href="/intake" class="btn btn-outline-secondary">Cancel</a>
+</form>
+</div>
+{% endblock %}
