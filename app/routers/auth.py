@@ -42,6 +42,7 @@ def login_submit(
         max_age=settings.SESSION_MAX_AGE,
         httponly=True,
         samesite="lax",
+        secure=settings.ENV == "production",
     )
     return response
 
