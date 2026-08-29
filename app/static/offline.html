@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline · CPMS</title>
+  <link rel="icon" href="/static/icons/favicon-32.png">
+  <style>
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #1b4332, #2d6a4f); color: #fff; text-align: center;
+      padding: 2rem;
+    }
+    .card { max-width: 380px; }
+    img { width: 72px; height: 72px; margin-bottom: 1.25rem; border-radius: 16px; }
+    h1 { font-size: 1.35rem; margin: 0 0 0.5rem; }
+    p { opacity: 0.85; font-size: 0.95rem; line-height: 1.5; }
+    button {
+      margin-top: 1.5rem; padding: 0.6rem 1.4rem; border-radius: 8px; border: none;
+      background: #fff; color: #1b4332; font-weight: 600; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="/static/icons/icon-192.png" alt="CPMS">
+    <h1>You're offline</h1>
+    <p>CPMS needs a connection to load or save mill data. Reconnect and try again — nothing you were entering has been lost if the page was still open.</p>
+    <button onclick="location.reload()">Retry</button>
+  </div>
+</body>
+</html>

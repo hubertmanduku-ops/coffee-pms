@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -28,6 +28,19 @@ app.include_router(sales.router)
 app.include_router(reports.router)
 app.include_router(users.router)
 app.include_router(audit_log.router)
+
+
+@app.get("/health")
+def health_check():
+    """Unauthenticated liveness endpoint for Railway's healthcheck."""
+    return {"status": "ok"}
+
+
+@app.get("/sw.js", include_in_schema=False)
+def service_worker():
+    """Served at the root path (not /static/sw.js) so its default scope covers the whole
+    app ('/'), letting it control every page rather than just /static/ assets."""
+    return FileResponse("app/static/sw.js", media_type="application/javascript")
 
 
 @app.exception_handler(HTTPException)
@@ -69,7 +82,7 @@ def startup_seed():
             admin = models.User(
                 username="admin",
                 full_name="System Administrator",
-                password_hash=hash_password("admin123"),
+                password_hash=hash_password(settings.ADMIN_SEED_PASSWORD),
                 role=models.UserRole.admin,
             )
             db.add(admin)

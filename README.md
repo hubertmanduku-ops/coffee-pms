@@ -85,6 +85,22 @@ Procfile, railway.json              Railway deployment config
    deactivate the seed account — there is no in-app password-change form yet; see "Known
    limitations").
 
+## Progressive Web App (PWA)
+CPMS is installable on desktop and mobile:
+- `app/static/manifest.json` — app name, theme color, and icon set (regular + maskable
+  variants, generated from `app/static/icons/`).
+- `app/static/sw.js`, served at the root path `/sw.js` (not `/static/sw.js`) so its scope
+  covers the whole app rather than just static assets. Strategy: pages always try the network
+  first (so operational data is never stale) and only fall back to a cached offline page
+  (`app/static/offline.html`) when there's no connectivity at all; static assets (CSS, icons)
+  are cached-first.
+- Once deployed over HTTPS (Railway does this by default), Chrome/Edge on desktop and Android
+  will offer an install prompt automatically, and there's also an "Install App" item in the
+  user menu (top right) once the browser signals the app is installable. iOS Safari: use the
+  Share sheet → "Add to Home Screen".
+- Bump `CACHE_VERSION` in `sw.js` whenever static assets change, so returning installed users
+  get the update instead of a stale cached copy.
+
 ## Known limitations / intentional simplifications
 This system is deliberately scoped for operational tracking, not full ERP/accounting:
 - No in-app "change my password" flow yet — an admin creates new users as needed.
