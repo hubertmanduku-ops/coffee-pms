@@ -8,12 +8,14 @@ Planning documents (BRD, Functional Requirements, DB Schema, User Stories, Wiref
 Development Plan) are in `docs/01_PLANNING.md`.
 
 ## Tech stack
+
 - Python 3.11, FastAPI
 - Server-rendered Jinja2 templates + Bootstrap 5 (no separate frontend build)
 - PostgreSQL (SQLAlchemy ORM)
 - Deploys as a single service on Railway
 
 ## Project structure
+
 ```
 app/
   main.py            FastAPI app, startup DB bootstrap, error handling
@@ -35,21 +37,27 @@ Procfile, railway.json              Railway deployment config
 ```
 
 ## Local setup
+
 1. Create a PostgreSQL database (e.g. `createdb coffee_pms`).
 2. Copy `.env.example` to `.env` and set `DATABASE_URL` and `SECRET_KEY`.
 3. Install dependencies:
+
    ```
    pip install -r requirements.txt --break-system-packages
    ```
+
 4. Run the app:
+
    ```
    uvicorn app.main:app --reload
    ```
+
 5. Visit `http://localhost:8000`. On first run, the app creates all tables and seeds:
    - Admin user: **username `admin`, password `admin123`** — change this immediately.
    - Two warehouses: "Warehouse A" and "Warehouse B".
 
 ## Roles
+
 - **admin** — everything, plus user management and the audit log.
 - **manager** — all operational modules, reports, and financial summaries; no user management.
 - **clerk** — day-to-day data entry (farmers, intake, batches, processing, inventory
@@ -57,6 +65,7 @@ Procfile, railway.json              Railway deployment config
   (expense/sales summaries, farmer settlement worksheet).
 
 ## Core workflow
+
 1. Register farmers (`/farmers`).
 2. Record cherry intake per delivery, choosing **purchase** or **processing-on-behalf**
    (`/intake`).
@@ -73,6 +82,7 @@ Procfile, railway.json              Railway deployment config
    processing-on-behalf output share, for manual finalization).
 
 ## Deploying to Railway
+
 1. Push this project to a Git repository.
 2. In Railway, create a new project → **Deploy from GitHub repo**.
 3. Add a **PostgreSQL** plugin to the project — Railway will inject `DATABASE_URL`
@@ -86,7 +96,9 @@ Procfile, railway.json              Railway deployment config
    limitations").
 
 ## Progressive Web App (PWA)
+
 CPMS is installable on desktop and mobile:
+
 - `app/static/manifest.json` — app name, theme color, and icon set (regular + maskable
   variants, generated from `app/static/icons/`).
 - `app/static/sw.js`, served at the root path `/sw.js` (not `/static/sw.js`) so its scope
@@ -102,7 +114,9 @@ CPMS is installable on desktop and mobile:
   get the update instead of a stale cached copy.
 
 ## Known limitations / intentional simplifications
+
 This system is deliberately scoped for operational tracking, not full ERP/accounting:
+
 - No in-app "change my password" flow yet — an admin creates new users as needed.
 - Farmer settlement is a worksheet/report, not an automated payment/ledger system.
 - No Alembic migrations — schema is created via `Base.metadata.create_all` on startup, which is
