@@ -91,9 +91,12 @@ Procfile, railway.json              Railway deployment config
 5. Railway detects `railway.json`/`Procfile` and runs
    `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
 6. On first request, the app creates tables and seeds the admin user and two warehouses.
-   Log in and change the admin password (create a new admin user with a new password, then
-   deactivate the seed account — there is no in-app password-change form yet; see "Known
-   limitations").
+   Log in and change the password via the user menu → **Change Password**.
+7. **After any deploy that changed `app/models.py`** (schema change), also run the pending
+   Alembic migration against the same `DATABASE_URL` — see "Database migrations" below. Railway
+   does not run this automatically; the app will boot and serve fine either way (migrations here
+   are written to be safe to run before or after a deploy), but features touching the new
+   columns/tables will error until the migration has actually run.
 
 ## Progressive Web App (PWA)
 
@@ -113,13 +116,53 @@ CPMS is installable on desktop and mobile:
 - Bump `CACHE_VERSION` in `sw.js` whenever static assets change, so returning installed users
   get the update instead of a stale cached copy.
 
+## Costing & Profitability
+
+`/costing` gives a live cost/revenue/margin breakdown per batch (cherry cost and revenue always
+come from actual recorded intake/sale amounts; operating cost is the sum of expenses actually
+logged against the batch, falling back to a standard-rate estimate when none are logged yet).
+`/costing/planner` is a what-if calculator — enter a cherry volume or a budget plus today's
+cherry purchase price (never stored, since it varies season to season) to project output,
+revenue, and profit, including a quick-reference table at the classic 10M–100M KES budget tiers.
+Admins tune the underlying rate card (yield ratios, per-kg operating costs, selling price, FX,
+and the cherry:parchment loss-ratio alarm band) at `/costing/settings`.
+
 ## Known limitations / intentional simplifications
 
 This system is deliberately scoped for operational tracking, not full ERP/accounting:
 
-- No in-app "change my password" flow yet — an admin creates new users as needed.
-- Farmer settlement is a worksheet/report, not an automated payment/ledger system.
-- No Alembic migrations — schema is created via `Base.metadata.create_all` on startup, which is
-  sufficient for this project's scope; introduce Alembic if the schema needs versioned changes
-  later.
+- Farmer settlement (`/reports/farmer-settlement`) tracks "mark settled" status so amounts
+  aren't re-listed once paid, but it's still a worksheet staff act on manually — there's no
+  automated payment/ledger integration.
 - Two warehouses and one wet mill are assumed fixed, per the stated business rules.
+
+## Database migrations (Alembic)
+
+Schema changes go through Alembic rather than relying solely on `create_all`. Every migration in
+this repo is written to be **safe to run in any order relative to a deploy** — each step checks
+whether its table/column already exists (since `Base.metadata.create_all()` at app startup may
+have already created it) and skips if so — so there's no risky "run this before/after deploying"
+sequencing to get right.
+
+- Fresh databases: `Base.metadata.create_all()` still runs automatically at app startup and
+  creates the full current schema — no manual migration step required to get started.
+- After pulling changes that touch `app/models.py`, apply them to your database with:
+
+  ```
+  alembic upgrade head
+  ```
+
+  This works whether or not `alembic_version` exists yet on that database (e.g. the first time
+  Alembic is run against the existing Railway production DB) — it just runs every migration in
+  order, and each one no-ops for anything already present.
+- When making your own schema change: edit `app/models.py`, then generate and review a migration:
+
+  ```
+  alembic revision --autogenerate -m "describe the change"
+  alembic upgrade head
+  ```
+
+  Review the generated migration before applying — Postgres ENUM columns in particular need a
+  manual `CREATE TYPE`/`DROP TYPE` step added for `add_column`/`drop_table` (see
+  `alembic/versions/d954fd8ecc24_*.py` for a worked example, including the existence-check
+  pattern used to make it safe to re-run).
