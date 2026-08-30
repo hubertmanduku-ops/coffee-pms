@@ -19,21 +19,22 @@ templates = Jinja2Templates(directory="app/templates")
 @router.get("")
 def list_intake(
     request: Request,
-    farmer_id: int = None,
+    farmer_id: str = "",
     unassigned: str = "",
     db: Session = Depends(get_db),
     user=Depends(require_login),
 ):
+    farmer_id_int = int(farmer_id) if farmer_id else None
     query = db.query(models.CoffeeIntake)
-    if farmer_id:
-        query = query.filter(models.CoffeeIntake.farmer_id == farmer_id)
+    if farmer_id_int:
+        query = query.filter(models.CoffeeIntake.farmer_id == farmer_id_int)
     if unassigned == "1":
         query = query.filter(models.CoffeeIntake.batch_id.is_(None))
     intakes = query.order_by(models.CoffeeIntake.intake_date.desc()).limit(300).all()
     farmers = db.query(models.Farmer).filter(models.Farmer.is_active.is_(True)).order_by(models.Farmer.full_name).all()
     return templates.TemplateResponse(
         "intake/list.html",
-        {"request": request, "user": user, "intakes": intakes, "farmers": farmers, "farmer_id": farmer_id, "unassigned": unassigned},
+        {"request": request, "user": user, "intakes": intakes, "farmers": farmers, "farmer_id": farmer_id_int, "unassigned": unassigned},
     )
 
 
