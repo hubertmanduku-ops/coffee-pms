@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Costing & Profitability{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h4 class="mb-0">Costing &amp; Profitability</h4>
+  <div class="d-flex gap-2">
+    <a href="/costing/planner" class="quick-action-btn"><i class="bi bi-calculator"></i> What-if Planner</a>
+    {% if user.role.value == 'admin' %}<a href="/costing/settings" class="quick-action-btn"><i class="bi bi-sliders"></i> Cost Rate Settings</a>{% endif %}
+  </div>
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+  <div class="col-auto"><label class="form-label small mb-0">From</label><input type="date" name="start" value="{{ start }}" class="form-control form-control-sm"></div>
+  <div class="col-auto"><label class="form-label small mb-0">To</label><input type="date" name="end" value="{{ end }}" class="form-control form-control-sm"></div>
+  <div class="col-auto"><button class="btn btn-sm btn-success">Filter</button></div>
+</form>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon-brown"><i class="bi bi-cart-check-fill"></i></div>
+      <div><div class="kpi-label">Cherry Cost</div><div class="kpi-value">{{ '%.0f'|format(totals.cherry_cost) }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon-amber"><i class="bi bi-wallet2"></i></div>
+      <div><div class="kpi-label">Operating Cost</div><div class="kpi-value">{{ '%.0f'|format(totals.opex) }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-icon-purple"><i class="bi bi-currency-exchange"></i></div>
+      <div><div class="kpi-label">Revenue</div><div class="kpi-value">{{ '%.0f'|format(totals.revenue) }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="kpi-card">
+      <div class="kpi-icon {% if totals.net_profit >= 0 %}kpi-icon-green{% else %}kpi-icon-red{% endif %}"><i class="bi bi-graph-up-arrow"></i></div>
+      <div><div class="kpi-label">Net Profit</div><div class="kpi-value">{{ '%.0f'|format(totals.net_profit) }}</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table mb-0 align-middle">
+      <thead>
+        <tr>
+          <th>Batch</th><th>Cherry (kg)</th><th>Green Coffee (kg)</th><th>Recovery %</th>
+          <th>Cherry Cost</th><th>Opex</th><th>Revenue</th><th>Net Profit</th><th>Margin/kg</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td><a href="/batches/{{ r.batch.id }}">{{ r.batch.batch_number }}</a></td>
+          <td>{{ '%.2f'|format(r.cherry_kg) }}</td>
+          <td>{{ '%.2f'|format(r.green_kg) }}</td>
+          <td>{{ '%.1f'|format(r.recovery_pct) }}%</td>
+          <td>{{ '%.0f'|format(r.cherry_cost) }}</td>
+          <td>{{ '%.0f'|format(r.opex) }} <span class="badge {% if r.opex_source == 'actual' %}bg-success-subtle text-success{% else %}bg-secondary-subtle text-secondary{% endif %}">{{ r.opex_source }}</span></td>
+          <td>{{ '%.0f'|format(r.revenue) }}</td>
+          <td class="{% if r.net_profit < 0 %}text-danger{% endif %}">{{ '%.0f'|format(r.net_profit) }}</td>
+          <td>{{ '%.2f'|format(r.margin_per_kg) if r.margin_per_kg is not none else '—' }}</td>
+        </tr>
+        {% else %}<tr><td colspan="9" class="text-center text-muted py-4">No batches in this period.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<p class="text-muted small mt-2">"Opex" is the sum of expenses actually logged against a batch when any exist, otherwise a standard-rate estimate (pulping + milling on cherry kg, marketing + bags + transport on green coffee kg) from the <a href="/costing/settings">cost rate settings</a>. Cherry cost and revenue always come from actual recorded intake/sale amounts.</p>
+{% endblock %}

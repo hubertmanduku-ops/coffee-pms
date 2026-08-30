@@ -79,12 +79,33 @@
       <div class="card-header bg-white">Outputs</div>
       <div class="table-responsive">
         <table class="table mb-0">
-          <thead><tr><th>Product</th><th>Kg</th><th>Warehouse</th><th>Date</th></tr></thead>
+          <thead><tr><th>Product</th><th>Kg</th><th>Warehouse</th><th>Date</th><th>Notes</th></tr></thead>
           <tbody>
             {% for o in batch.outputs %}
-            <tr><td>{{ o.product_type.value }}</td><td>{{ o.quantity_kg }}</td><td>{{ o.warehouse.name }}</td><td>{{ o.output_date }}</td></tr>
+            <tr>
+              <td>{{ o.product_type.value }}</td>
+              <td>{{ o.quantity_kg }}</td>
+              <td>{{ o.warehouse.name }}</td>
+              <td>{{ o.output_date }}</td>
+              <td>
+                {% if o.product_type.value == 'parchment' %}
+                  {% if o.destination %}
+                    {% if o.destination.value == 'mill' %}<span class="badge bg-info text-dark">To Mill</span>
+                    {% else %}<span class="badge bg-secondary">In Store</span>{% endif %}
+                  {% endif %}
+                  {% if batch.total_cherry_kg and o.quantity_kg and rates %}
+                    {% set ratio = (batch.total_cherry_kg / o.quantity_kg) %}
+                    {% if ratio < rates.loss_ratio_min or ratio > rates.loss_ratio_max %}
+                      <span class="badge bg-warning text-dark" title="Expected {{ rates.loss_ratio_min }}–{{ rates.loss_ratio_max }}">⚠ Loss ratio {{ '%.2f'|format(ratio) }}</span>
+                    {% else %}
+                      <span class="text-muted small">Loss ratio {{ '%.2f'|format(ratio) }}</span>
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+              </td>
+            </tr>
             {% else %}
-            <tr><td colspan="4" class="text-center text-muted py-3">No outputs recorded.</td></tr>
+            <tr><td colspan="5" class="text-center text-muted py-3">No outputs recorded.</td></tr>
             {% endfor %}
           </tbody>
         </table>

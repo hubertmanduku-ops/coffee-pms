@@ -1,5 +1,6 @@
 import enum
 from datetime import datetime, date
+from decimal import Decimal
 
 from sqlalchemy import (
     Boolean,
@@ -66,6 +67,16 @@ class AuditAction(str, enum.Enum):
     delete = "delete"
     login = "login"
     logout = "logout"
+
+
+class ParchmentDestination(str, enum.Enum):
+    mill = "mill"
+    store = "store"
+
+
+class SettlementStatus(str, enum.Enum):
+    pending = "pending"
+    paid = "paid"
 
 
 # ---------------------------------------------------------------- models ----
@@ -189,6 +200,7 @@ class ProcessingOutput(Base):
     quantity_kg = Column(Numeric(10, 2), nullable=False)
     moisture_content = Column(Numeric(5, 2))
     warehouse_id = Column(Integer, ForeignKey("warehouses.id"), nullable=False)
+    destination = Column(Enum(ParchmentDestination), nullable=True)
     recorded_by = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -272,3 +284,54 @@ class AuditLog(Base):
     entity_id = Column(Integer, nullable=True)
     description = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class CostRateSettings(Base):
+    """Singleton (id=1) admin-editable standard-cost rate card for the Costing module.
+
+    Deliberately excludes cherry purchase price — that varies season to season and always
+    comes from actual recorded CoffeeIntake data (live) or a one-off planner input, never a
+    stored constant.
+    """
+
+    __tablename__ = "cost_rate_settings"
+
+    id = Column(Integer, primary_key=True)
+    # 6 decimal places (not 4) — the source rate is the repeating decimal 2/11 (0.181818...);
+    # truncating to 4 places (0.1818) was enough to visibly throw off the planner's kg-level
+    # output on realistic budgets, so this needs the extra precision to reproduce it exactly.
+    parchment_outturn_pct = Column(Numeric(8, 6), nullable=False, default=Decimal("0.181818"))
+    milling_recovery_pct = Column(Numeric(6, 4), nullable=False, default=Decimal("0.8"))
+    # Same reasoning — the source rate is 1/6 (0.166667 repeating).
+    pulping_cost_per_kg_cherry = Column(Numeric(10, 6), nullable=False, default=Decimal("0.166667"))
+    milling_cost_per_kg_cherry = Column(Numeric(10, 4), nullable=False, default=Decimal("1.024"))
+    marketing_cost_per_kg_green = Column(Numeric(10, 4), nullable=False, default=Decimal("11.52"))
+    bag_size_kg = Column(Numeric(6, 2), nullable=False, default=Decimal("50"))
+    bag_cost = Column(Numeric(10, 2), nullable=False, default=Decimal("350"))
+    transport_cost_per_kg_green = Column(Numeric(10, 4), nullable=False, default=Decimal("5"))
+    selling_price_usd_per_kg = Column(Numeric(10, 4), nullable=False, default=Decimal("6"))
+    fx_rate_kes_per_usd = Column(Numeric(10, 4), nullable=False, default=Decimal("129"))
+    loss_ratio_min = Column(Numeric(6, 2), nullable=False, default=Decimal("4.5"))
+    loss_ratio_max = Column(Numeric(6, 2), nullable=False, default=Decimal("6.0"))
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+
+class FarmerSettlement(Base):
+    """A finalized (paid) settlement snapshot for a farmer, so the settlement worksheet report
+    doesn't keep re-listing amounts that have already been settled."""
+
+    __tablename__ = "farmer_settlements"
+
+    id = Column(Integer, primary_key=True)
+    farmer_id = Column(Integer, ForeignKey("farmers.id"), nullable=False)
+    as_of_date = Column(Date, nullable=False, default=date.today)
+    purchase_payable = Column(Numeric(12, 2), nullable=False, default=0)
+    pob_output_share_kg = Column(Numeric(10, 2), nullable=False, default=0)
+    status = Column(Enum(SettlementStatus), nullable=False, default=SettlementStatus.paid)
+    paid_date = Column(Date, nullable=False, default=date.today)
+    paid_by = Column(Integer, ForeignKey("users.id"))
+    notes = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    farmer = relationship("Farmer")

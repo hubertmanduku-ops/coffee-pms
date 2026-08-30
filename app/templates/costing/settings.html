@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Cost Rate Settings{% endblock %}
+{% block content %}
+<h4 class="mb-1">Cost Rate Settings</h4>
+<p class="text-muted small">Standard operating-cost rates used by the live Costing report (as a fallback when no expenses are logged against a batch) and pre-filled into the What-if Planner. Cherry purchase price is intentionally not here — it's entered fresh each time in the planner and always comes from actual recorded intakes in the live report.</p>
+
+<div class="card p-4" style="max-width:640px;">
+<form method="post">
+  <h6 class="text-muted text-uppercase small mt-1 mb-2">Yield ratios</h6>
+  <div class="row">
+    <div class="col-md-6 mb-3"><label class="form-label">Parchment outturn (cherry → parchment)</label><input type="number" step="0.0001" name="parchment_outturn_pct" class="form-control" value="{{ rates.parchment_outturn_pct }}" required></div>
+    <div class="col-md-6 mb-3"><label class="form-label">Milling recovery (parchment → green)</label><input type="number" step="0.0001" name="milling_recovery_pct" class="form-control" value="{{ rates.milling_recovery_pct }}" required></div>
+  </div>
+
+  <h6 class="text-muted text-uppercase small mt-2 mb-2">Operating cost rates (KES)</h6>
+  <div class="row">
+    <div class="col-md-6 mb-3"><label class="form-label">Pulping cost / kg cherry</label><input type="number" step="0.0001" name="pulping_cost_per_kg_cherry" class="form-control" value="{{ rates.pulping_cost_per_kg_cherry }}" required></div>
+    <div class="col-md-6 mb-3"><label class="form-label">Milling cost / kg cherry</label><input type="number" step="0.0001" name="milling_cost_per_kg_cherry" class="form-control" value="{{ rates.milling_cost_per_kg_cherry }}" required></div>
+    <div class="col-md-6 mb-3"><label class="form-label">Marketing cost / kg green coffee</label><input type="number" step="0.0001" name="marketing_cost_per_kg_green" class="form-control" value="{{ rates.marketing_cost_per_kg_green }}" required></div>
+    <div class="col-md-6 mb-3"><label class="form-label">Transport cost / kg green coffee</label><input type="number" step="0.0001" name="transport_cost_per_kg_green" class="form-control" value="{{ rates.transport_cost_per_kg_green }}" required></div>
+    <div class="col-md-6 mb-3"><label class="form-label">Bag size (kg)</label><input type="number" step="0.01" name="bag_size_kg" class="form-control" value="{{ rates.bag_size_kg }}" required></div>
+    <div class="col-md-6 mb-3"><label class="form-label">Cost per bag (KES)</label><input type="number" step="0.01" name="bag_cost" class="form-control" value="{{ rates.bag_cost }}" required></div>
+  </div>
+
+  <h6 class="text-muted text-uppercase small mt-2 mb-2">Selling price & FX</h6>
+  <div class="row">
+    <div class="col-md-6 mb-3"><label class="form-label">Selling price (USD/kg green coffee)</label><input type="number" step="0.0001" name="selling_price_usd_per_kg" class="form-control" value="{{ rates.selling_price_usd_per_kg }}" required></div>
+    <div class="col-md-6 mb-3"><label class="form-label">FX rate (KES per USD)</label><input type="number" step="0.0001" name="fx_rate_kes_per_usd" class="form-control" value="{{ rates.fx_rate_kes_per_usd }}" required></div>
+  </div>
+
+  <h6 class="text-muted text-uppercase small mt-2 mb-2">Cherry:parchment loss-ratio alarm</h6>
+  <div class="row">
+    <div class="col-md-6 mb-3"><label class="form-label">Minimum acceptable ratio</label><input type="number" step="0.01" name="loss_ratio_min" class="form-control" value="{{ rates.loss_ratio_min }}" required></div>
+    <div class="col-md-6 mb-3"><label class="form-label">Maximum acceptable ratio</label><input type="number" step="0.01" name="loss_ratio_max" class="form-control" value="{{ rates.loss_ratio_max }}" required></div>
+  </div>
+
+  <button type="submit" class="btn btn-success">Save Rates</button>
+</form>
+</div>
+{% endblock %}

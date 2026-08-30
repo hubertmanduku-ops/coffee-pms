@@ -5,7 +5,7 @@
 <div class="card">
   <div class="table-responsive">
     <table class="table mb-0">
-      <thead><tr><th>Batch</th><th>Date</th><th>Status</th><th>Cherry In (kg)</th><th>Output (kg)</th><th>Recovery %</th></tr></thead>
+      <thead><tr><th>Batch</th><th>Date</th><th>Status</th><th>Cherry In (kg)</th><th>Output (kg)</th><th>Recovery %</th><th>Cherry:Parchment Loss Ratio</th></tr></thead>
       <tbody>
         {% for d in data %}
         <tr>
@@ -15,8 +15,14 @@
           <td>{{ d.batch.total_cherry_kg }}</td>
           <td>{{ '%.2f'|format(d.total_out) }}</td>
           <td>{{ '%.1f'|format(d.recovery) }}%</td>
+          <td>
+            {% if d.loss_ratio is not none %}
+              {% if d.loss_ratio_ok %}{{ '%.2f'|format(d.loss_ratio) }}
+              {% else %}<span class="badge bg-warning text-dark">⚠ {{ '%.2f'|format(d.loss_ratio) }}</span>{% endif %}
+            {% else %}—{% endif %}
+          </td>
         </tr>
-        {% else %}<tr><td colspan="6" class="text-center text-muted py-4">No batches yet.</td></tr>{% endfor %}
+        {% else %}<tr><td colspan="7" class="text-center text-muted py-4">No batches yet.</td></tr>{% endfor %}
       </tbody>
     </table>
   </div>

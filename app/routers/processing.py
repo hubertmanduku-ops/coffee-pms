@@ -99,6 +99,7 @@ def create_output(
     quantity_kg: Decimal = Form(...),
     moisture_content: str = Form(""),
     warehouse_id: int = Form(...),
+    destination: str = Form(""),
     db: Session = Depends(get_db),
     user=Depends(require_role(*CAN_EDIT)),
 ):
@@ -109,6 +110,7 @@ def create_output(
         quantity_kg=quantity_kg,
         moisture_content=Decimal(moisture_content) if moisture_content else None,
         warehouse_id=warehouse_id,
+        destination=destination if product_type == "parchment" and destination else None,
         recorded_by=user.id,
     )
     db.add(output)
@@ -116,4 +118,16 @@ def create_output(
     _post_inventory_in(db, warehouse_id, product_type, quantity_kg, "processing_output", output.id, user, notes=f"Output from batch {batch_id}")
     db.commit()
     log_action(db, user, models.AuditAction.create, "processing_output", output.id, f"Recorded {quantity_kg}kg {product_type} for batch {batch_id}")
+
+    if product_type == "parchment" and quantity_kg:
+        batch = db.query(models.Batch).get(batch_id)
+        rates = db.query(models.CostRateSettings).get(1)
+        if batch and batch.total_cherry_kg and rates:
+            loss_ratio = float(batch.total_cherry_kg) / float(quantity_kg)
+            if loss_ratio < float(rates.loss_ratio_min) or loss_ratio > float(rates.loss_ratio_max):
+                return RedirectResponse(
+                    f"/batches/{batch_id}?warning=Cherry:parchment loss ratio {loss_ratio:.2f} is outside the expected "
+                    f"{rates.loss_ratio_min}–{rates.loss_ratio_max} range — verify the weights",
+                    status_code=303,
+                )
     return RedirectResponse(f"/batches/{batch_id}?success=Output recorded and added to inventory", status_code=303)

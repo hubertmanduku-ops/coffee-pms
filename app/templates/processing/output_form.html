@@ -12,7 +12,7 @@
     </div>
     <div class="col-md-6 mb-3">
       <label class="form-label">Product Type</label>
-      <select name="product_type" class="form-select">
+      <select name="product_type" id="productType" class="form-select" onchange="toggleDestination()">
         {% for p in product_types %}<option value="{{ p }}">{{ p.replace('_',' ')|title }}</option>{% endfor %}
       </select>
     </div>
@@ -33,8 +33,22 @@
       {% for w in warehouses %}<option value="{{ w.id }}">{{ w.name }}</option>{% endfor %}
     </select>
   </div>
+  <div class="mb-3 d-none" id="destinationField">
+    <label class="form-label">Parchment Routing</label>
+    <select name="destination" class="form-select">
+      <option value="mill">To Mill (forward for hulling/milling)</option>
+      <option value="store">To Store (hold in warehouse)</option>
+    </select>
+  </div>
   <button type="submit" class="btn btn-success">Save Output</button>
   <a href="/batches/{{ batch.id }}" class="btn btn-outline-secondary">Cancel</a>
 </form>
 </div>
+<script>
+  function toggleDestination() {
+    const isParchment = document.getElementById('productType').value === 'parchment';
+    document.getElementById('destinationField').classList.toggle('d-none', !isParchment);
+  }
+  document.addEventListener('DOMContentLoaded', toggleDestination);
+</script>
 {% endblock %}

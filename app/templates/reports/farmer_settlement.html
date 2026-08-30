@@ -4,11 +4,11 @@
 <h4 class="mb-3">Farmer Settlement Worksheet</h4>
 <p class="text-muted small">Purchase amounts are direct payables. Processing-on-behalf output share is
 an estimate based on each intake's proportion of its batch's total cherry input — use for manual
-finalization, not automatic payout.</p>
-<div class="card">
+finalization, not automatic payout. Amounts shown exclude anything already marked settled below.</p>
+<div class="card mb-4">
   <div class="table-responsive">
-    <table class="table mb-0">
-      <thead><tr><th>Farmer</th><th>Purchase Payable</th><th>Processing-on-behalf Kg Delivered</th><th>Estimated Green Coffee Share (kg)</th></tr></thead>
+    <table class="table mb-0 align-middle">
+      <thead><tr><th>Farmer</th><th>Purchase Payable</th><th>Processing-on-behalf Kg Delivered</th><th>Estimated Green Coffee Share (kg)</th><th>Last Settled</th><th></th></tr></thead>
       <tbody>
         {% for r in rows %}
         <tr>
@@ -16,8 +16,34 @@ finalization, not automatic payout.</p>
           <td>{{ '%.2f'|format(r.payable) }}</td>
           <td>{{ '%.2f'|format(r.pob_kg) }}</td>
           <td>{{ '%.2f'|format(r.output_share_kg) }}</td>
+          <td>{{ r.last_settled.isoformat() if r.last_settled else '—' }}</td>
+          <td>
+            <form method="post" action="/reports/farmer-settlement/{{ r.farmer.id }}/settle" onsubmit="return confirm('Mark this settlement as paid? This snapshots the current payable/share and removes it from future worksheets.');">
+              <button type="submit" class="btn btn-sm btn-outline-success">Mark Settled</button>
+            </form>
+          </td>
         </tr>
-        {% else %}<tr><td colspan="4" class="text-center text-muted py-4">No settlement data yet.</td></tr>{% endfor %}
+        {% else %}<tr><td colspan="6" class="text-center text-muted py-4">No outstanding settlement data.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h5 class="mb-3">Settlement History</h5>
+<div class="card">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead><tr><th>Farmer</th><th>As Of</th><th>Payable Paid</th><th>Output Share Paid (kg)</th><th>Paid Date</th></tr></thead>
+      <tbody>
+        {% for h in history %}
+        <tr>
+          <td><a href="/farmers/{{ h.farmer.id }}">{{ h.farmer.full_name }}</a></td>
+          <td>{{ h.as_of_date.isoformat() }}</td>
+          <td>{{ '%.2f'|format(h.purchase_payable) }}</td>
+          <td>{{ '%.2f'|format(h.pob_output_share_kg) }}</td>
+          <td>{{ h.paid_date.isoformat() }}</td>
+        </tr>
+        {% else %}<tr><td colspan="5" class="text-center text-muted py-4">No settlements recorded yet.</td></tr>{% endfor %}
       </tbody>
     </table>
   </div>

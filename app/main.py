@@ -9,7 +9,22 @@ from app.database import Base, SessionLocal, engine
 from app import models
 from app.security import hash_password
 
-from app.routers import auth, dashboard, farmers, intake, batches, processing, inventory, expenses, sales, reports, users, audit_log
+from app.routers import (
+    auth,
+    dashboard,
+    farmers,
+    intake,
+    batches,
+    processing,
+    inventory,
+    expenses,
+    sales,
+    reports,
+    users,
+    audit_log,
+    account,
+    costing,
+)
 
 app = FastAPI(title=settings.APP_NAME)
 
@@ -28,6 +43,8 @@ app.include_router(sales.router)
 app.include_router(reports.router)
 app.include_router(users.router)
 app.include_router(audit_log.router)
+app.include_router(account.router)
+app.include_router(costing.router)
 
 
 @app.get("/health")
@@ -89,6 +106,8 @@ def startup_seed():
         if not db.query(models.Warehouse).first():
             db.add(models.Warehouse(name="Warehouse A", location="Main store"))
             db.add(models.Warehouse(name="Warehouse B", location="Secondary store"))
+        if not db.query(models.CostRateSettings).get(1):
+            db.add(models.CostRateSettings(id=1))
         db.commit()
     finally:
         db.close()

@@ -57,6 +57,7 @@ def batch_detail(batch_id: int, request: Request, db: Session = Depends(get_db),
     warehouses = db.query(models.Warehouse).filter(models.Warehouse.is_active.is_(True)).all()
     total_output = sum(float(o.quantity_kg) for o in batch.outputs)
     recovery_pct = (total_output / float(batch.total_cherry_kg) * 100) if batch.total_cherry_kg else 0
+    rates = db.query(models.CostRateSettings).get(1)
     return templates.TemplateResponse(
         "batches/detail.html",
         {
@@ -67,6 +68,7 @@ def batch_detail(batch_id: int, request: Request, db: Session = Depends(get_db),
             "warehouses": warehouses,
             "total_output": total_output,
             "recovery_pct": recovery_pct,
+            "rates": rates,
             "stage_types": [s.value for s in models.StageType],
             "product_types": [p.value for p in models.ProductType],
         },
